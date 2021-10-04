@@ -83,7 +83,7 @@ export class Graph implements IGraph {
     });
   }
   /**
-   * (5) Use cytoscape under the hood
+   * (5) Use cytoscape under the hood 
    */
 
   dfs(visit: Visit<IVertex, IEdge>) {
