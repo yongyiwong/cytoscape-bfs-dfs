@@ -28,7 +28,6 @@ const parser: Parser = (tree: Node): GraphData => {
     data.edges.push(...edges);
     data.edges.push(<IEdge>{ source: tree.id, target: childNode.id });
   }
-console.log( data );  
   return data;
 }
 
@@ -58,19 +57,27 @@ export class Graph implements IGraph {
   /**
    * (4) Use cytoscape under the hood
    */
-  bfs(visit: Visit<IVertex, IEdge>) {
 
+   getRootNodeId = (): string|undefined => {
     const nodes = <NodeCollection>this.cy.getElementById(this.tree.id);
     if (!nodes.length) {
+      return undefined;
+    }
+    const rootNode = nodes[0];
+    const rootNodeId = `#${rootNode.data().id}`;
+    return rootNodeId;
+  }
+    
+  bfs(visit: Visit<IVertex, IEdge>) {
+    const rootNodeId = this.getRootNodeId();
+    if( !rootNodeId ){
       return;
     }
 
-    const rootNode = nodes[0];
-    const rootNodeId = `#${rootNode.data().id}`;
     this.cy.elements().bfs({
       roots: rootNodeId,
-      visit: function (v, e, u, i, depth) {
-        visit(v.data(), { source: e ? e.source().data().id : '', target: e ? e.target().data().id : '' });
+      visit: function (v, e) {
+        visit(v.data(), { source: e?.source().data().id, target:e?.target().data().id});
       },
       directed: false
     });
@@ -78,18 +85,16 @@ export class Graph implements IGraph {
   /**
    * (5) Use cytoscape under the hood
    */
+
   dfs(visit: Visit<IVertex, IEdge>) {
-    const nodes = <NodeCollection>this.cy.getElementById(this.tree.id);
-    if (!nodes.length) {
+    const rootNodeId = this.getRootNodeId();
+    if( !rootNodeId ){
       return;
     }
-    const rootNode = nodes[0];
-    const rootNodeId = `#${rootNode.data().id}`;
-
     this.cy.elements().dfs({
       roots: rootNodeId,
-      visit: function (v, e, u, i, depth) {
-        visit(v.data(), { source: e ? e.source().data().id : '', target: e ? e.target().data().id : '' });
+      visit: function (v, e) {
+        visit(v.data(), { source: e?.source().data().id, target:e?.target().data().id});
       },
       directed: false
     });
